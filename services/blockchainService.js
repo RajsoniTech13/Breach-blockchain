@@ -9,9 +9,11 @@ dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const abiPath = path.join(__dirname, "../contract/abi.json");
+const abiPath = path.join(__dirname, "../contracts/abi.json");
 
-const abi = JSON.parse(fs.readFileSync(abiPath, "utf8"));
+const abi = JSON.parse(
+  fs.readFileSync(abiPath, "utf8")
+);
 
 const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
 
@@ -26,4 +28,49 @@ const contract = new ethers.Contract(
   wallet
 );
 
-export { contract };
+export async function anchorExpense(expenseId, groupId, hash) {
+
+  const tx = await contract.anchorExpense(
+    expenseId,
+    groupId,
+    hash
+  );
+
+  await tx.wait();
+
+  return tx.hash;
+}
+
+export async function anchorSettlement(settlementId, groupId, hash) {
+
+  const tx = await contract.anchorSettlement(
+    settlementId,
+    groupId,
+    hash
+  );
+
+  await tx.wait();
+
+  return tx.hash;
+}
+
+export async function anchorLedgerEntry(entryId, groupId, hash) {
+
+  const tx = await contract.anchorLedgerEntry(
+    entryId,
+    groupId,
+    hash
+  );
+
+  await tx.wait();
+
+  return tx.hash;
+}
+
+export async function verifyRecord(referenceId, hash) {
+
+  return await contract.verifyRecord(
+    referenceId,
+    hash
+  );
+}
