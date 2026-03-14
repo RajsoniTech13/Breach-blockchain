@@ -15,8 +15,13 @@ import {
 
 const router = express.Router();
 
+
+
 /*
+==========================
 STORE EXPENSE
+==========================
+Backend sends raw expense record
 */
 
 router.post("/expense", async (req, res) => {
@@ -35,6 +40,8 @@ router.post("/expense", async (req, res) => {
 
     res.json({
       success: true,
+      type: "expense",
+      referenceId: expense.id,
       hash,
       txHash
     });
@@ -42,6 +49,7 @@ router.post("/expense", async (req, res) => {
   } catch (error) {
 
     res.status(500).json({
+      success: false,
       error: error.message
     });
 
@@ -50,8 +58,11 @@ router.post("/expense", async (req, res) => {
 });
 
 
+
 /*
+==========================
 STORE SETTLEMENT
+==========================
 */
 
 router.post("/settlement", async (req, res) => {
@@ -70,6 +81,8 @@ router.post("/settlement", async (req, res) => {
 
     res.json({
       success: true,
+      type: "settlement",
+      referenceId: settlement.id,
       hash,
       txHash
     });
@@ -77,6 +90,7 @@ router.post("/settlement", async (req, res) => {
   } catch (error) {
 
     res.status(500).json({
+      success: false,
       error: error.message
     });
 
@@ -85,8 +99,11 @@ router.post("/settlement", async (req, res) => {
 });
 
 
+
 /*
+==========================
 STORE LEDGER ENTRY
+==========================
 */
 
 router.post("/ledger", async (req, res) => {
@@ -105,6 +122,8 @@ router.post("/ledger", async (req, res) => {
 
     res.json({
       success: true,
+      type: "ledger",
+      referenceId: entry.id,
       hash,
       txHash
     });
@@ -112,6 +131,7 @@ router.post("/ledger", async (req, res) => {
   } catch (error) {
 
     res.status(500).json({
+      success: false,
       error: error.message
     });
 
@@ -120,8 +140,11 @@ router.post("/ledger", async (req, res) => {
 });
 
 
+
 /*
+==========================
 VERIFY EXPENSE
+==========================
 */
 
 router.post("/verify-expense", async (req, res) => {
@@ -134,11 +157,18 @@ router.post("/verify-expense", async (req, res) => {
 
     const valid = await verifyRecord(expense.id, hash);
 
-    res.json({ valid });
+    res.json({
+      type: "expense",
+      referenceId: expense.id,
+      hash,
+      blockchainValid: valid,
+      integrity: valid === true
+    });
 
   } catch (error) {
 
     res.status(500).json({
+      success: false,
       error: error.message
     });
 
@@ -147,8 +177,11 @@ router.post("/verify-expense", async (req, res) => {
 });
 
 
+
 /*
+==========================
 VERIFY SETTLEMENT
+==========================
 */
 
 router.post("/verify-settlement", async (req, res) => {
@@ -161,11 +194,18 @@ router.post("/verify-settlement", async (req, res) => {
 
     const valid = await verifyRecord(settlement.id, hash);
 
-    res.json({ valid });
+    res.json({
+      type: "settlement",
+      referenceId: settlement.id,
+      hash,
+      blockchainValid: valid,
+      integrity: valid === true
+    });
 
   } catch (error) {
 
     res.status(500).json({
+      success: false,
       error: error.message
     });
 
@@ -174,8 +214,11 @@ router.post("/verify-settlement", async (req, res) => {
 });
 
 
+
 /*
+==========================
 VERIFY LEDGER
+==========================
 */
 
 router.post("/verify-ledger", async (req, res) => {
@@ -188,16 +231,24 @@ router.post("/verify-ledger", async (req, res) => {
 
     const valid = await verifyRecord(entry.id, hash);
 
-    res.json({ valid });
+    res.json({
+      type: "ledger",
+      referenceId: entry.id,
+      hash,
+      blockchainValid: valid,
+      integrity: valid === true
+    });
 
   } catch (error) {
 
     res.status(500).json({
+      success: false,
       error: error.message
     });
 
   }
 
 });
+
 
 export default router;
