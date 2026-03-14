@@ -1,18 +1,22 @@
 import { ethers } from "ethers";
 
+function safe(value) {
+  return value ?? "";
+}
 
-// expense table
+/* EXPENSE */
+
 export function generateExpenseHash(expense) {
 
   const canonicalData = [
-    expense.id,
-    expense.groupId,
-    expense.paidByUserId,
-    expense.amount,
-    expense.currency,
-    expense.category,
-    expense.description,
-    expense.expenseDate
+    safe(expense.id),
+    safe(expense.groupId),
+    safe(expense.paidByUserId),
+    safe(expense.amount),
+    safe(expense.currency),
+    safe(expense.category),
+    safe(expense.description),
+    safe(expense.expenseDate)
   ].join("|");
 
   return ethers.keccak256(
@@ -20,18 +24,18 @@ export function generateExpenseHash(expense) {
   );
 }
 
+/* SETTLEMENT */
 
-// settlement
 export function generateSettlementHash(settlement) {
 
   const canonicalData = [
-    settlement.id,
-    settlement.groupId,
-    settlement.fromUserId,
-    settlement.toUserId,
-    settlement.amount,
-    settlement.currency,
-    settlement.settledAt
+    safe(settlement.id),
+    safe(settlement.groupId),
+    safe(settlement.fromUserId),
+    safe(settlement.toUserId),
+    safe(settlement.amount),
+    safe(settlement.currency),
+    safe(settlement.settledAt)
   ].join("|");
 
   return ethers.keccak256(
@@ -39,17 +43,17 @@ export function generateSettlementHash(settlement) {
   );
 }
 
+/* LEDGER */
 
-// ledger
 export function generateLedgerHash(entry) {
 
   const canonicalData = [
-    entry.id,
-    entry.accountId,
-    entry.referenceId,
-    entry.referenceType,
-    entry.amount,
-    entry.entryType
+    safe(entry.id),
+    safe(entry.accountId),
+    safe(entry.referenceId),
+    safe(entry.referenceType),
+    safe(entry.amount),
+    safe(entry.entryType)
   ].join("|");
 
   return ethers.keccak256(

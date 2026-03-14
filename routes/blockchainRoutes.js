@@ -7,22 +7,35 @@ import {
   verifyRecord
 } from "../services/blockchainService.js";
 
+import {
+  generateExpenseHash,
+  generateSettlementHash,
+  generateLedgerHash
+} from "../utils/hashGenerator.js";
+
 const router = express.Router();
+
+/*
+STORE EXPENSE
+*/
 
 router.post("/expense", async (req, res) => {
 
   try {
 
-    const { expenseId, groupId, hash } = req.body;
+    const expense = req.body;
+
+    const hash = generateExpenseHash(expense);
 
     const txHash = await anchorExpense(
-      expenseId,
-      groupId,
+      expense.id,
+      expense.groupId,
       hash
     );
 
     res.json({
       success: true,
+      hash,
       txHash
     });
 
@@ -35,21 +48,29 @@ router.post("/expense", async (req, res) => {
   }
 
 });
+
+
+/*
+STORE SETTLEMENT
+*/
 
 router.post("/settlement", async (req, res) => {
 
   try {
 
-    const { settlementId, groupId, hash } = req.body;
+    const settlement = req.body;
+
+    const hash = generateSettlementHash(settlement);
 
     const txHash = await anchorSettlement(
-      settlementId,
-      groupId,
+      settlement.id,
+      settlement.groupId,
       hash
     );
 
     res.json({
       success: true,
+      hash,
       txHash
     });
 
@@ -62,21 +83,29 @@ router.post("/settlement", async (req, res) => {
   }
 
 });
+
+
+/*
+STORE LEDGER ENTRY
+*/
 
 router.post("/ledger", async (req, res) => {
 
   try {
 
-    const { entryId, groupId, hash } = req.body;
+    const entry = req.body;
+
+    const hash = generateLedgerHash(entry);
 
     const txHash = await anchorLedgerEntry(
-      entryId,
-      groupId,
+      entry.id,
+      entry.referenceId,
       hash
     );
 
     res.json({
       success: true,
+      hash,
       txHash
     });
 
@@ -90,20 +119,76 @@ router.post("/ledger", async (req, res) => {
 
 });
 
-router.get("/verify", async (req, res) => {
+
+/*
+VERIFY EXPENSE
+*/
+
+router.post("/verify-expense", async (req, res) => {
 
   try {
 
-    const { referenceId, hash } = req.query;
+    const expense = req.body;
 
-    const valid = await verifyRecord(
-      referenceId,
-      hash
-    );
+    const hash = generateExpenseHash(expense);
 
-    res.json({
-      valid
+    const valid = await verifyRecord(expense.id, hash);
+
+    res.json({ valid });
+
+  } catch (error) {
+
+    res.status(500).json({
+      error: error.message
     });
+
+  }
+
+});
+
+
+/*
+VERIFY SETTLEMENT
+*/
+
+router.post("/verify-settlement", async (req, res) => {
+
+  try {
+
+    const settlement = req.body;
+
+    const hash = generateSettlementHash(settlement);
+
+    const valid = await verifyRecord(settlement.id, hash);
+
+    res.json({ valid });
+
+  } catch (error) {
+
+    res.status(500).json({
+      error: error.message
+    });
+
+  }
+
+});
+
+
+/*
+VERIFY LEDGER
+*/
+
+router.post("/verify-ledger", async (req, res) => {
+
+  try {
+
+    const entry = req.body;
+
+    const hash = generateLedgerHash(entry);
+
+    const valid = await verifyRecord(entry.id, hash);
+
+    res.json({ valid });
 
   } catch (error) {
 
